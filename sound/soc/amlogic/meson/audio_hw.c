@@ -30,6 +30,8 @@
 #include <linux/amlogic/media/sound/audin_regs.h>
 #include <linux/amlogic/media/sound/audio_iomap.h>
 #include "audio_hw.h"
+#include <trace/events/meson_atrace.h>
+
 
 /* i2s mode 0: master 1: slave */
 /* source: 0: linein; 1: ATV; 2: HDMI-in */
@@ -1125,6 +1127,7 @@ void audio_set_958_mode(unsigned int mode, struct _aiu_958_raw_setting_t *set)
 
 void audio_out_i2s_enable(unsigned int flag)
 {
+	ATRACE_COUNTER("audio_hw_disabled", !flag);
 	if (flag) {
 		aml_aiu_write(AIU_RST_SOFT, 0x01);
 		aml_aiu_read(AIU_I2S_SYNC);

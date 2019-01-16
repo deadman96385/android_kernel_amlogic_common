@@ -52,6 +52,7 @@
 #include <linux/amlogic/media/frame_sync/tsync.h>
 #include "common/vfp.h"
 #include "amlvideo.h"
+#include <trace/events/meson_atrace.h>
 
 #define AVMLVIDEO_MODULE_NAME "amlvideo"
 
@@ -535,6 +536,7 @@ static int vidioc_dqbuf(struct file *file, void *priv, struct v4l2_buffer *p)
 	u64 pts_us64 = 0;
 	u64 pts_tmp;
 	struct vframe_s *next_vf;
+	struct vframe_states states;
 
 	if (vfq_level(&dev->q_ready) > AMLVIDEO_POOL_SIZE - 1)
 		return -EAGAIN;
@@ -596,6 +598,8 @@ static int vidioc_dqbuf(struct file *file, void *priv, struct v4l2_buffer *p)
 		p->timecode.flags = dev->vf->height;
 	}
 	p->sequence = dev->frame_num++;
+	amlvideo_vf_states(&states, dev);
+	ATRACE_COUNTER(AVMLVIDEO_MODULE_NAME, states.buf_avail_num);
 
 	vf_notify_receiver(
 			dev->vf_provider_name,
