@@ -3012,9 +3012,8 @@ static void vsync_toggle_frame(struct vframe_s *vf)
 #endif
 		if ((abs(timestamp_pcrscr_get() - vf->pts) <= (vsync_pts_inc))
 			  && ((int)(timestamp_pcrscr_get() - vf->pts) >= 0)) {
-			/*vsync_pts_align =  vsync_pts_inc / 4 - */
-			/*	(timestamp_pcrscr_get() - vf->pts);*/
-			vsync_pts_align = 0;
+			vsync_pts_align =  vsync_pts_inc / 4 -
+				(timestamp_pcrscr_get() - vf->pts);
 			vsync_pts_aligned = true;
 #ifdef PTS_TRACE_DEBUG
 			pts_trace_his_rd = 0;
@@ -5491,7 +5490,8 @@ static irqreturn_t vsync_isr_in(int irq, void *dev_id)
 					(cur_dispbuf) ?
 					cur_dispbuf->duration : 0,
 					vf->pts, timestamp_pcrscr_get(),
-					timestamp_pcrscr_get() - vf->pts,
+					timestamp_pcrscr_get() - vf->pts +
+					vsync_pts_align,
 					pts_trace);
 			amlog_mask_if(toggle_cnt > 0, LOG_MASK_FRAMESKIP,
 				      "skipped\n");
