@@ -1182,3 +1182,17 @@ source "arch/arm64/crypto/Kconfig"
 endif
 
 source "lib/Kconfig"
+
+source "arch/arm/kvm/Kconfig"
+#CONFIG_INNOPIATECH
+config INNOPIATECH
+        bool "Innopiatech enhancement enable"
+        default n
+        help
+                Support for Innopiatech Enhancement. (CONFIG_INNOPIATECH)
+config INNOPIATECH_M748
+        bool "Innopiatech enhancement enable"
+        default n
+        help
+                                Support for Innopiatech Enhancement. (CONFIG_INNOPIATECH_M748)
+#endif

@@ -33,7 +33,7 @@
 #include <linux/fs.h>
 #include <linux/sysfs.h>
 #include <linux/uaccess.h>
-
+#include <linux/arm-smccc.h>
 /* Android Headers */
 
 /* Amlogic sync headers */
@@ -445,6 +445,10 @@ MODULE_PARM_DESC(rdarb_reqen_slv, "rdarb_reqen_slv");
 static unsigned int supsend_delay;
 module_param(supsend_delay, uint, 0664);
 MODULE_PARM_DESC(supsend_delay, "supsend_delay");
+
+static unsigned int flush_vxwm_enable = 0;
+module_param(flush_vxwm_enable, int, 0664);
+MODULE_PARM_DESC(flush_vxwm_enable, "flush_vxwm_enable");
 
 static int vsync_enter_line_max;
 static int vsync_exit_line_max;
@@ -1791,6 +1795,20 @@ static int notify_to_amvideo(void)
 	return 0;
 }
 /*************** end of GXL/GXM hardware alpha bug workaround ***************/
+#define TEE_SMC_FAST_CALL_VAL(func_num) \
+	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL, ARM_SMCCC_SMC_32, \
+			ARM_SMCCC_OWNER_TRUSTED_OS, (func_num))
+
+#define TEE_SMC_FUNCID_FLUSH_VXWM    23
+#define TEE_SMC_FLUSH_VXWM TEE_SMC_FAST_CALL_VAL(TEE_SMC_FUNCID_FLUSH_VXWM)
+
+static void flush_vxwm(void)
+{
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(TEE_SMC_FLUSH_VXWM, 0, 0, 0, 0, 0, 0, 0, &res);
+}
+
 #ifdef FIQ_VSYNC
 static irqreturn_t vsync_isr(int irq, void *dev_id)
 {
@@ -1813,6 +1831,9 @@ static irqreturn_t vsync_isr(int irq, void *dev_id)
 		osd_hw_reset();
 	} else
 		osd_rdma_interrupt_done_clear();
+
+	if (flush_vxwm_enable)
+		flush_vxwm();
 
 #ifndef FIQ_VSYNC
 	return IRQ_HANDLED;
@@ -7301,17 +7322,6 @@ static void uniformization_fb(u32 index,
 		blending->screen_ratio_w;
 	blending->dst_data.h = (osd_hw.dst_data[index].h << OSD_CALC) /
 		blending->screen_ratio_h;
-	if (osd_hw.dst_data[index].w < osd_hw.disp_info.position_w)
-		osd_log_err("base dispframe w(%d) must >= position_w(%d)\n",
-		osd_hw.dst_data[index].w, osd_hw.disp_info.position_w);
-	if ((blending->dst_data.w + blending->dst_data.x) >
-		osd_hw.disp_info.background_w) {
-		blending->dst_data.w = osd_hw.disp_info.background_w
-			- blending->dst_data.x;
-		osd_log_info("blending w(%d) must < base fb w(%d)\n",
-			blending->dst_data.w + blending->dst_data.x,
-			osd_hw.disp_info.background_w);
-	}
 	osd_log_dbg2(MODULE_BLEND,
 		"uniformization:osd%d:dst_data:%d,%d,%d,%d\n",
 		index,

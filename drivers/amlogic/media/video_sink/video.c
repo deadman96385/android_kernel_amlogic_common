@@ -7199,7 +7199,8 @@ EXPORT_SYMBOL(get_blackout_policy);
 
 u32 set_blackout_policy(int policy)
 {
-	blackout = policy;
+//	blackout = policy;
+	blackout = 1;
 	return 0;
 }
 EXPORT_SYMBOL(set_blackout_policy);

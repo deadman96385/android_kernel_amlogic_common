@@ -817,7 +817,8 @@
 		dev_name = "meson-remote";
 		reg = <0x0 0xff808040 0x00 0x44>, /*Multi-format IR controller*/
 			<0x0 0xff808000 0x00 0x20>; /*Legacy IR controller*/
-		status = "okay";
+		//status = "okay";
+		status = "disabled";
 		protocol = <REMOTE_TYPE_NEC>;
 		led_blink = <1>;
 		led_blink_frq = <100>;
@@ -1329,15 +1330,15 @@
 		clocks = <&clkc CLKID_VPU_CLKC_MUX>;
 		clock-names = "vpu_clkc";
 	};
-	irblaster: meson-irblaster {
-		compatible = "amlogic, meson_irblaster";
-		reg = <0x0 0xff80014c 0x0 0x10>,
-			<0x0 0xff800040 0x0 0x4>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&irblaster_pins>;
-		interrupts = <0 198 1>;
-		status = "okay";
-	};
+//	irblaster: meson-irblaster {
+//		compatible = "amlogic, meson_irblaster";
+//		reg = <0x0 0xff80014c 0x0 0x10>,
+//			<0x0 0xff800040 0x0 0x4>;
+//		pinctrl-names = "default";
+//		pinctrl-0 = <&irblaster_pins>;
+//		interrupts = <0 198 1>;
+//		status = "okay";
+//	};
 
 	sd_emmc_c: emmc@ffe07000 {
 		status = "disabled";
@@ -1491,18 +1492,18 @@
 		cap-mmc-highspeed;
 		max-frequency = <100000000>;
 		disable-wp;
-		sd {
-			pinname = "sd";
-			ocr_avail = <0x200080>; /**VDD voltage 3.3 ~ 3.4 */
-			max_req_size = <0x20000>; /**128KB*/
-			gpio_dat3 = <&gpio GPIOC_3 GPIO_ACTIVE_HIGH>;
-			jtag_pin = <&gpio GPIOC_0 GPIO_ACTIVE_HIGH>;
-			gpio_cd = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
-			card_type = <5>;
+//		sd {
+//			pinname = "sd";
+//			ocr_avail = <0x200080>; /**VDD voltage 3.3 ~ 3.4 */
+//			max_req_size = <0x20000>; /**128KB*/
+//			gpio_dat3 = <&gpio GPIOC_3 GPIO_ACTIVE_HIGH>;
+//			jtag_pin = <&gpio GPIOC_0 GPIO_ACTIVE_HIGH>;
+//			gpio_cd = <&gpio GPIOC_6 GPIO_ACTIVE_HIGH>;
+//			card_type = <5>;
 			/* 3:sdio device(ie:sdio-wifi),
 			 * 5:NON sdio device(means sd/mmc card)
 			 */
-		};
+//		};
 
 		sdio {
 			pinname = "sdio";
@@ -2074,6 +2075,7 @@
 	};
 
 	sd_clr_all_pins:sd_clr_all_pins {
+						/*
 		mux {
 			groups = "GPIOC_0",
 				   "GPIOC_1",
@@ -2088,9 +2090,11 @@
 			function = "gpio_periphs";
 			output-low;
 		};
+		*/
 	};
 
 	sd_clr_noall_pins:sd_clr_noall_pins {
+						/*
 		mux {
 			groups = "GPIOC_0",
 				   "GPIOC_1",
@@ -2099,6 +2103,7 @@
 			function = "gpio_periphs";
 			output-high;
 		};
+		*/
 	};
 
 	ao_to_sd_uart_pins:ao_to_sd_uart_pins {
